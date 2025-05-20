@@ -14,6 +14,11 @@ export interface Assistant {
 }
 
 export interface Report {
+  nome?: string;
+  email?: string;
+  telefone?: string;
+  status?: string;
+  data?: string;
   [key: string]: any;
 }
 

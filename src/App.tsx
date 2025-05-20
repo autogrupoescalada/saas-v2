@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ThumbsUp } from 'lucide-react';
 import Login from './components/Login';
-import AdminDashboard from './components/AdminDashboard';
+import Dashboard from './components/Dashboard';
 import EditAssistant from './components/EditAssistant';
-import ReportView from './components/ReportView';
 import { UserSession } from './types';
 
 const API_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3YmEyNDIyMC0wMjk2LTQ4MGItYjMxYS05OTA1YjUzMGM4OGMiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQ3NjU2NDgyfQ.OZ2qUFBOeXXyBGKA4WiyJseeK-OCezdkr7t3Kh05zE';
 
 function App() {
-  const [currentView, setCurrentView] = useState<'login' | 'admin' | 'edit' | 'report'>('login');
+  const [currentView, setCurrentView] = useState<'login' | 'dashboard' | 'edit'>('login');
   const [user, setUser] = useState<UserSession | null>(null);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [reportId, setReportId] = useState<string | null>(null);
+  const [assistantId, setAssistantId] = useState<string | null>(null);
 
   useEffect(() => {
     // Initialize session from localStorage on app load
@@ -21,7 +19,7 @@ function App() {
       const parsedSession = JSON.parse(session);
       if (parsedSession.expires > Date.now()) {
         setUser(parsedSession.user);
-        setCurrentView('admin');
+        setCurrentView('dashboard');
       } else {
         // Clear expired session
         localStorage.removeItem('adminSession');
@@ -36,7 +34,7 @@ function App() {
     };
     localStorage.setItem('adminSession', JSON.stringify(sessionData));
     setUser(userData);
-    setCurrentView('admin');
+    setCurrentView('dashboard');
   };
 
   const handleLogout = () => {
@@ -46,17 +44,12 @@ function App() {
   };
 
   const handleEditAssistant = (id: string) => {
-    setEditId(id);
+    setAssistantId(id);
     setCurrentView('edit');
   };
 
-  const handleViewReport = (id: string) => {
-    setReportId(id);
-    setCurrentView('report');
-  };
-
-  const handleBackToAdmin = () => {
-    setCurrentView('admin');
+  const handleBackToDashboard = () => {
+    setCurrentView('dashboard');
   };
 
   return (
@@ -65,28 +58,19 @@ function App() {
         <Login onLogin={handleLogin} apiToken={API_TOKEN} />
       )}
       
-      {currentView === 'admin' && user && (
-        <AdminDashboard 
+      {currentView === 'dashboard' && user && (
+        <Dashboard 
           user={user} 
           onLogout={handleLogout} 
-          onEdit={handleEditAssistant}
-          onViewReport={handleViewReport}
+          onEditAssistant={handleEditAssistant}
           apiToken={API_TOKEN}
         />
       )}
       
-      {currentView === 'edit' && editId && (
+      {currentView === 'edit' && assistantId && (
         <EditAssistant 
-          assistantId={editId} 
-          onBack={handleBackToAdmin}
-          apiToken={API_TOKEN}
-        />
-      )}
-      
-      {currentView === 'report' && reportId && (
-        <ReportView 
-          assistantId={reportId} 
-          onBack={handleBackToAdmin}
+          assistantId={assistantId} 
+          onBack={handleBackToDashboard}
           apiToken={API_TOKEN}
         />
       )}
